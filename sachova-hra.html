@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Šachové Zahájení pro Děti</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-container {
+            max-width: 900px;
+            width: 100%;
+            margin: 20px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow-y: auto;
+            max-height: 95vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #764ba2;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.8em;
+            color: #2d3436;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #d63031;
+        }
+
+        .opening-display {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .opening-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .opening-description {
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0;
+            max-width: 450px;
+            width: 100%;
+            margin: 0 auto 20px;
+            border: 5px solid #2d3436;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            aspect-ratio: 1;
+        }
+
+        .square {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .square.light {
+            background: #f0d9b5;
+        }
+
+        .square.dark {
+            background: #b58863;
+        }
+
+        .square.highlight {
+            background: #7bed9f !important;
+            animation: pulse 0.5s;
+        }
+
+        .square.correct {
+            background: #00b894 !important;
+            animation: bounce 0.5s;
+        }
+
+        .square.wrong {
+            background: #d63031 !important;
+            animation: shake 0.5s;
+        }
+
+        .square:hover:not(.disabled) {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .square.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .move-notation {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 0.3em;
+            color: #636e72;
+            font-family: monospace;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            animation: fadeIn 0.5s;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+        }
+
+        .congrats {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .congrats h2 {
+            font-size: 2.5em;
+            color: #d63031;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        .trophy {
+            font-size: 5em;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #dfe6e9;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00b894 0%, #00cec9 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8em; }
+            .subtitle { font-size: 1em; }
+            .square { font-size: 2em; }
+            button { padding: 12px 20px; font-size: 1em; }
+        }
+
+        .selection-screen {
+            text-align: center;
+        }
+
+        .mode-selection {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-card {
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+            padding: 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .mode-card.help {
+            background: linear-gradient(135deg, #a8e6cf 0%, #56ab2f 100%);
+            color: white;
+        }
+
+        .mode-card.practice {
+            background: linear-gradient(135deg, #ffd89b 0%, #ff6b6b 100%);
+            color: white;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .mode-card h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .mode-card p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .opening-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .opening-card {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .opening-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .opening-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .opening-card p {
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+
+        .step-indicator {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Šachové figurky
+        const pieces = {
+            'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
+            'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
+        };
+
+        // Databáze zahájení
+        const openings = [
+            {
+                name: "Italské Zahájení",
+                description: "Jedno z nejstarších a nejpopulárnějších zahájení! Bílý rychle vyvíjí svého střelce na c4.",
+                moves: [
+                    { from: 'e2', to: 'e4', piece: 'P', notation: 'e4' },
+                    { from: 'e7', to: 'e5', piece: 'p', notation: 'e5' },
+                    { from: 'g1', to: 'f3', piece: 'N', notation: 'Jf3' },
+                    { from: 'b8', to: 'c6', piece: 'n', notation: 'Jc6' },
+                    { from: 'f1', to: 'c4', piece: 'B', notation: 'Sc4' }
+                ]
+            },
+            {
+                name: "Španělské Zahájení",
+                description: "Také známé jako Ruy Lopez! Bílý útočí na jezdce, který brání pěšce e5.",
+                moves: [
+                    { from: 'e2', to: 'e4', piece: 'P', notation: 'e4' },
+                    { from: 'e7', to: 'e5', piece: 'p', notation: 'e5' },
+                    { from: 'g1', to: 'f3', piece: 'N', notation: 'Jf3' },
+                    { from: 'b8', to: 'c6', piece: 'n', notation: 'Jc6' },
+                    { from: 'f1', to: 'b5', piece: 'B', notation: 'Sb5' }
+                ]
+            },
+            {
+                name: "Skotské Zahájení",
+                description: "Bílý hned útočí pěšcem d4 na černého pěšce e5!",
+                moves: [
+                    { from: 'e2', to: 'e4', piece: 'P', notation: 'e4' },
+                    { from: 'e7', to: 'e5', piece: 'p', notation: 'e5' },
+                    { from: 'g1', to: 'f3', piece: 'N', notation: 'Jf3' },
+                    { from: 'b8', to: 'c6', piece: 'n', notation: 'Jc6' },
+                    { from: 'd2', to: 'd4', piece: 'P', notation: 'd4' }
+                ]
+            },
+            {
+                name: "Čtyřtahová Hra",
+                description: "Odvážné zahájení! Bílý obětuje pěšce, aby rychle zaútočil na krále.",
+                moves: [
+                    { from: 'e2', to: 'e4', piece: 'P', notation: 'e4' },
+                    { from: 'e7', to: 'e5', piece: 'p', notation: 'e5' },
+                    { from: 'f1', to: 'c4', piece: 'B', notation: 'Sc4' },
+                    { from: 'b8', to: 'c6', piece: 'n', notation: 'Jc6' },
+                    { from: 'd1', to: 'h5', piece: 'Q', notation: 'Dh5' }
+                ]
+            },
+            {
+                name: "Královský Gambit",
+                description: "Slavné a agresivní zahájení! Bílý obětuje pěšce f4 pro rychlý útok.",
+                moves: [
+                    { from: 'e2', to: 'e4', piece: 'P', notation: 'e4' },
+                    { from: 'e7', to: 'e5', piece: 'p', notation: 'e5' },
+                    { from: 'f2', to: 'f4', piece: 'P', notation: 'f4' }
+                ]
+            },
+            {
+                name: "Pěšcový Gambit",
+                description: "Černý obětuje pěšce pro aktivní hru! To je dámská verze gambitu.",
+                moves: [
+                    { from: 'd2', to: 'd4', piece: 'P', notation: 'd4' },
+                    { from: 'd7', to: 'd5', piece: 'p', notation: 'd5' },
+                    { from: 'c2', to: 'c4', piece: 'P', notation: 'c4' }
+                ]
+            }
+        ];
+
+        function ChessGame() {
+            const [board, setBoard] = useState(createInitialBoard());
+            const [currentOpening, setCurrentOpening] = useState(null);
+            const [currentMoveIndex, setCurrentMoveIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [totalAttempts, setTotalAttempts] = useState(0);
+            const [message, setMessage] = useState({ text: '', type: '' });
+            const [highlightSquares, setHighlightSquares] = useState([]);
+            const [gameComplete, setGameComplete] = useState(false);
+            const [openingsCompleted, setOpeningsCompleted] = useState(0);
+            const [hintActive, setHintActive] = useState(false);
+            const [gameMode, setGameMode] = useState(null); // 'help' nebo 'practice'
+            const [gameStarted, setGameStarted] = useState(false);
+
+            function createInitialBoard() {
+                const board = Array(8).fill(null).map(() => Array(8).fill(''));
+                
+                // Bílé figurky
+                board[7] = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
+                board[6] = Array(8).fill('P');
+                
+                // Černé figurky
+                board[0] = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'];
+                board[1] = Array(8).fill('p');
+                
+                return board;
+            }
+
+            function startNewOpening(opening = null, mode = null) {
+                setBoard(createInitialBoard());
+                const selectedOpening = opening || openings[Math.floor(Math.random() * openings.length)];
+                setCurrentOpening(selectedOpening);
+                setCurrentMoveIndex(0);
+                setMessage({ text: `Zahrajte: ${selectedOpening.name}`, type: 'info' });
+                setHighlightSquares([]);
+                setGameComplete(false);
+                setHintActive(false);
+                if (mode) {
+                    setGameMode(mode);
+                    setGameStarted(true);
+                }
+            }
+
+            function selectOpeningAndMode(opening, mode) {
+                startNewOpening(opening, mode);
+            }
+
+            function backToMenu() {
+                setGameStarted(false);
+                setGameMode(null);
+                setCurrentOpening(null);
+                setScore(0);
+                setTotalAttempts(0);
+                setOpeningsCompleted(0);
+            }
+
+
+
+            function squareToCoords(square) {
+                const file = square.charCodeAt(0) - 97; // a=0, b=1, ...
+                const rank = 8 - parseInt(square[1]); // 8=0, 7=1, ...
+                return { row: rank, col: file };
+            }
+
+            function handleSquareClick(row, col) {
+                if (!currentOpening || currentMoveIndex >= currentOpening.moves.length) return;
+                
+                // Pokud je aktivní nápověda v režimu procvičování, ignoruj kliknutí
+                if (hintActive && gameMode === 'practice') {
+                    return;
+                }
+
+                const currentMove = currentOpening.moves[currentMoveIndex];
+                const expectedFrom = squareToCoords(currentMove.from);
+                const expectedTo = squareToCoords(currentMove.to);
+
+                // Pokud je to první kliknutí (výběr figury)
+                if (highlightSquares.length === 0) {
+                    if (row === expectedFrom.row && col === expectedFrom.col) {
+                        setHighlightSquares([{ row, col }]);
+                        setMessage({ text: `Výborně! Teď táhni na správné pole.`, type: 'info' });
+                    } else {
+                        setMessage({ text: `To není správná figurka! Zkus jiné pole.`, type: 'error' });
+                        if (gameMode === 'practice') {
+                            setTotalAttempts(prev => prev + 1);
+                        }
+                    }
+                } else {
+                    // Druhé kliknutí (cílové pole)
+                    if (row === expectedTo.row && col === expectedTo.col) {
+                        // Správný tah!
+                        const newBoard = board.map(r => [...r]);
+                        newBoard[expectedTo.row][expectedTo.col] = newBoard[expectedFrom.row][expectedFrom.col];
+                        newBoard[expectedFrom.row][expectedFrom.col] = '';
+                        setBoard(newBoard);
+                        
+                        if (gameMode === 'practice') {
+                            setScore(prev => prev + 1);
+                            setTotalAttempts(prev => prev + 1);
+                        }
+                        setCurrentMoveIndex(prev => prev + 1);
+                        setHighlightSquares([]);
+
+                        if (currentMoveIndex + 1 >= currentOpening.moves.length) {
+                            setMessage({ text: `🎉 Perfektní! Dokončil jsi ${currentOpening.name}!`, type: 'success' });
+                            setOpeningsCompleted(prev => prev + 1);
+                            setGameComplete(true);
+                        } else {
+                            setMessage({ text: `Skvělý tah! Pokračuj dál.`, type: 'success' });
+                        }
+                    } else {
+                        setMessage({ text: `To není správné pole! Zkus to znovu.`, type: 'error' });
+                        setHighlightSquares([]);
+                        if (gameMode === 'practice') {
+                            setTotalAttempts(prev => prev + 1);
+                        }
+                    }
+                }
+            }
+
+            function showHint() {
+                if (!currentOpening || currentMoveIndex >= currentOpening.moves.length) return;
+                
+                // Pokud je už nápověda aktivní, vypni ji
+                if (hintActive) {
+                    setHighlightSquares([]);
+                    setHintActive(false);
+                    setMessage({ text: `Pokračuj v tahu!`, type: 'info' });
+                    return;
+                }
+                
+                // Jinak zapni nápovědu
+                const currentMove = currentOpening.moves[currentMoveIndex];
+                const from = squareToCoords(currentMove.from);
+                const to = squareToCoords(currentMove.to);
+                
+                setMessage({ 
+                    text: `Nápověda: Táhni figurkou ${pieces[currentMove.piece]} z ${currentMove.from} na ${currentMove.to} (${currentMove.notation}). Klikni znovu na Nápověda pro pokračování.`, 
+                    type: 'info' 
+                });
+                setHighlightSquares([from, to]);
+                setHintActive(true);
+            }
+
+            const accuracy = totalAttempts > 0 ? Math.round((score / totalAttempts) * 100) : 0;
+
+            // Obrazovka výběru režimu
+            if (!gameStarted && !gameMode) {
+                return (
+                    <div className="game-container">
+                        <h1>🏰 Šachové Zahájení 🏰</h1>
+                        <p className="subtitle">Nauč se základní zahájení hravě!</p>
+                        
+                        <div className="step-indicator">Krok 1: Vyber si režim hry</div>
+                        
+                        <div className="mode-selection">
+                            <div className="mode-card help" onClick={() => setGameMode('help')}>
+                                <h3>🎓 S Pomocí</h3>
+                                <p>Správná pole jsou vždy zvýrazněná. Ideální pro začátečníky a učení nových zahájení!</p>
+                            </div>
+                            <div className="mode-card practice" onClick={() => setGameMode('practice')}>
+                                <h3>⚡ Procvičování</h3>
+                                <p>Žádné zvýraznění, ale můžeš použít nápovědu. Pro ty, kdo už znají zahájení a chtějí si je procvičit!</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Obrazovka výběru zahájení
+            if (!gameStarted && gameMode) {
+                return (
+                    <div className="game-container">
+                        <h1>🏰 Šachové Zahájení 🏰</h1>
+                        <p className="subtitle">Nauč se základní zahájení hravě!</p>
+                        
+                        <div className="step-indicator">
+                            Krok 2: Vyber si zahájení 
+                            {gameMode === 'help' ? ' (Režim: S Pomocí 🎓)' : ' (Režim: Procvičování ⚡)'}
+                        </div>
+                        
+                        <div className="opening-grid">
+                            {openings.map((opening, index) => (
+                                <div 
+                                    key={index} 
+                                    className="opening-card"
+                                    onClick={() => selectOpeningAndMode(opening, gameMode)}
+                                >
+                                    <h4>{opening.name}</h4>
+                                    <p>{opening.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <div className="buttons" style={{ marginTop: '30px' }}>
+                            <button className="back-button" onClick={() => setGameMode(null)}>
+                                ← Zpět na výběr režimu
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Zobrazení aktuálního tahu s pomocí
+            const getCurrentMoveHighlight = () => {
+                if (gameMode !== 'help' || !currentOpening || currentMoveIndex >= currentOpening.moves.length) {
+                    return [];
+                }
+                const currentMove = currentOpening.moves[currentMoveIndex];
+                const from = squareToCoords(currentMove.from);
+                const to = squareToCoords(currentMove.to);
+                return [from, to];
+            };
+
+            const autoHighlight = gameMode === 'help' ? getCurrentMoveHighlight() : [];
+
+            return (
+                <div className="game-container">
+                    <h1>🏰 Šachové Zahájení 🏰</h1>
+                    <p className="subtitle">Nauč se základní zahájení hravě!</p>
+
+                    {gameMode === 'practice' && (
+                        <div className="score-board">
+                            <div className="score-item">
+                                <div className="score-label">Správné tahy</div>
+                                <div className="score-value">{score}</div>
+                            </div>
+                            <div className="score-item">
+                                <div className="score-label">Přesnost</div>
+                                <div className="score-value">{accuracy}%</div>
+                            </div>
+                            <div className="score-item">
+                                <div className="score-label">Krok</div>
+                                <div className="score-value">
+                                    {currentOpening ? `${currentMoveIndex + 1}/${currentOpening.moves.length}` : '0/0'}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {gameMode === 'help' && (
+                        <div className="score-board">
+                            <div className="score-item">
+                                <div className="score-label">📚 Režim učení</div>
+                                <div className="score-value" style={{ fontSize: '1.2em' }}>
+                                    Krok {currentOpening ? `${currentMoveIndex + 1}/${currentOpening.moves.length}` : '0/0'}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentOpening && (
+                        <div className="opening-display">
+                            <div className="opening-name">{currentOpening.name}</div>
+                            <div className="opening-description">{currentOpening.description}</div>
+                        </div>
+                    )}
+
+                    <div className="chess-board">
+                        {board.map((row, rowIndex) => 
+                            row.map((piece, colIndex) => {
+                                const isLight = (rowIndex + colIndex) % 2 === 0;
+                                const isHighlighted = highlightSquares.some(
+                                    sq => sq.row === rowIndex && sq.col === colIndex
+                                );
+                                const isAutoHighlighted = autoHighlight.some(
+                                    sq => sq.row === rowIndex && sq.col === colIndex
+                                );
+                                const file = String.fromCharCode(97 + colIndex);
+                                const rank = 8 - rowIndex;
+                                
+                                return (
+                                    <div
+                                        key={`${rowIndex}-${colIndex}`}
+                                        className={`square ${isLight ? 'light' : 'dark'} ${isHighlighted || isAutoHighlighted ? 'highlight' : ''}`}
+                                        onClick={() => handleSquareClick(rowIndex, colIndex)}
+                                    >
+                                        {piece && pieces[piece]}
+                                        <span className="move-notation">{file}{rank}</span>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+
+                    {message.text && (
+                        <div className={`message ${message.type}`}>
+                            {message.text}
+                        </div>
+                    )}
+
+                    <div className="buttons">
+                        {!gameComplete ? (
+                            <>
+                                {gameMode === 'practice' && (
+                                    <button className="btn-secondary" onClick={showHint}>
+                                        💡 Nápověda
+                                    </button>
+                                )}
+                                <button className="back-button" onClick={backToMenu}>
+                                    🏠 Zpět do menu
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button className="btn-success" onClick={() => startNewOpening(null, gameMode)}>
+                                    ▶️ Další Zahájení
+                                </button>
+                                <button className="btn-primary" onClick={() => startNewOpening(currentOpening, gameMode)}>
+                                    🔄 Zkusit Znovu
+                                </button>
+                                <button className="back-button" onClick={backToMenu}>
+                                    🏠 Zpět do menu
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+                    {openingsCompleted >= openings.length && (
+                        <div className="congrats">
+                            <div className="trophy">🏆</div>
+                            <h2>Gratulujeme!</h2>
+                            <p style={{ fontSize: '1.3em', marginTop: '15px' }}>
+                                Dokončil jsi všechna základní zahájení! Jsi šachový šampion! 🎉
+                            </p>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<ChessGame />, document.getElementById('root'));
+    </script>
+</body>
+</html>
