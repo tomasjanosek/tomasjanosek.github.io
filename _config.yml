@@ -31,16 +31,11 @@ exclude:
   - vendor/gems/
   - vendor/ruby/
   - .gitignore
-  - README.md
-
-# Include files
-include:
-  - _pages
 
 # Permalink structure
-permalink: /:title/
+permalink: pretty
 
-# Default front matter
+# Default front matter (only for markdown pages, not HTML)
 defaults:
   - scope:
       path: ""
