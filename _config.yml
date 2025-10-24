@@ -4,7 +4,7 @@
 title: "Šachové Zahájení"
 description: "Nauč se základní šachová zahájení hravě! Interactive chess opening learning application."
 author: "Tomas Janosek"
-email: your-email@example.com
+# email: your-email@example.com # optional - add your email if needed
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://tomasjanosek.github.io" # the base hostname & protocol for your site
 
