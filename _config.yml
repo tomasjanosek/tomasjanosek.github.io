@@ -1,0 +1,78 @@
+# Jekyll Configuration for tomasjanosek.github.io
+
+# Site Settings
+title: "Šachové Zahájení"
+description: "Nauč se základní šachová zahájení hravě! Interactive chess opening learning application."
+author: "Tomas Janosek"
+# email: your-email@example.com # optional - add your email if needed
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://tomasjanosek.github.io" # the base hostname & protocol for your site
+
+# Language
+lang: cs
+
+# Build Settings
+markdown: kramdown
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - .gitignore
+
+# Permalink structure
+permalink: pretty
+
+# Default front matter (only for markdown pages, not HTML)
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+
+# Social Links (optional - update with your actual links)
+github_username: tomasjanosek
+# twitter_username: your_twitter
+# linkedin_username: your_linkedin
+
+# Google Analytics (optional - add your tracking ID)
+# google_analytics: UA-XXXXXXXX-X
+
+# Comments (optional)
+# disqus:
+#   shortname: your-disqus-shortname
+
+# SEO Settings
+twitter:
+  card: summary
+  # username: your_twitter
+
+# Logo and images
+# logo: /assets/images/logo.png
+# image: /assets/images/default-share.png
+
+# Sass/SCSS
+sass:
+  style: compressed
+
+# Collections (if you plan to add more content)
+# collections:
+#   games:
+#     output: true
+#     permalink: /games/:name/
+
+# Timezone
+timezone: Europe/Prague
